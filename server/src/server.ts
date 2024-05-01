@@ -1,4 +1,5 @@
 import 'reflect-metadata'
+import {existsSync, mkdirSync} from 'fs'
 import http from 'http'
 import express from 'express'
 import cors from 'cors'
@@ -31,7 +32,18 @@ export const app = express()
 dotenv.config()
 const port = process.env.PORT || 8080
 
+const uploadsDir = () => {
+	if (!existsSync('uploads')) {
+		mkdirSync('uploads')
+		mkdirSync('uploads/avatars')
+		mkdirSync('uploads/images')
+		mkdirSync('uploads/thumbnails')
+	}
+}
+
 export const init = (async () => {
+	uploadsDir()
+
 	DI.orm = await MikroORM.init()
 	DI.em = DI.orm.em
 	DI.user = DI.orm.em.getRepository(User)

@@ -8,7 +8,6 @@ services:
   #container_name: backend
   #environment:
   #- DATABASE_HOST=postgres
-  #- JWT_SECRET=yoursecrethere
   #ports:
   #- 8080:8080
   #depends_on:
