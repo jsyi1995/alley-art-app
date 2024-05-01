@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  #server:
+  #build:
+  #context: ./server
+  #dockerfile: Dockerfile
+  #container_name: backend
+  #environment:
+  #- DATABASE_HOST=postgres
+  #- JWT_SECRET=yoursecrethere
+  #ports:
+  #- 8080:8080
+  #depends_on:
+  #- postgres
+
+  postgres:
+    image: postgres:14-alpine
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=mysecretpassword
+    ports:
+      - 5432:5432
+    volumes:
+      - postgresdb:/var/lib/postgresql/data
+
+volumes:
+  postgresdb:

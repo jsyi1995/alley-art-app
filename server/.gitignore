@@ -1,0 +1,10 @@
+node_modules
+dist
+temp
+uploads
+
+test_images
+
+src/setup-db.ts
+
+.env
