@@ -5,6 +5,6 @@ uploads
 
 test_images
 
-src/setup-db.ts
+src/setup.ts
 
 .env

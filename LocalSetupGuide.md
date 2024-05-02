@@ -48,7 +48,7 @@ The API will be accessible over HTTP at http://localhost:8080.
 npm install
 ```
 
-#### Step 4: Run the Vite dev server
+#### Step 3: Run the Vite dev server
 
 ```bash
 npm run dev

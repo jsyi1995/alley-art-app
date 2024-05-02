@@ -1,25 +1,39 @@
 version: '3.8'
 
 services:
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - 5100:5100
+    depends_on:
+      - server
+
   server:
     build:
       context: ./server
       dockerfile: Dockerfile
-      container_name: backend
-  environment:
-    - DATABASE_HOST=alleydb
-    - POSTGRES_USER=postgres
-    - POSTGRES_PASSWORD=mysecretpass
-  ports:
-    - 8080:8080
-  depends_on:
-    - db
+    container_name: backend
+    environment:
+      - DATABASE_HOST=alleydb
+      - POSTGRES_DB=alley
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=mysecretpass
+      - JWT_SECRET=jwtsecretname
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
 
   db:
     container_name: alleydb
     image: postgres:14-alpine
     restart: always
     environment:
+      - PGPORT=5431
+      - POSTGRES_DB=alley
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=mysecretpass
     ports:

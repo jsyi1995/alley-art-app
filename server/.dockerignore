@@ -2,3 +2,7 @@
 **/temp
 **/test_images
 **/uploads
+
+.env
+.env.example
+.gitignore
