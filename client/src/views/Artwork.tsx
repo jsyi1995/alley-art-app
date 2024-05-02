@@ -1,4 +1,4 @@
-import {useParams, Link} from 'react-router-dom'
+import {useParams, Link, Navigate} from '@tanstack/react-router'
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
 import {useSelector} from 'react-redux'
 import {selectUserInfo} from '../store/slices/AuthSlice'
@@ -11,12 +11,21 @@ import {CommentInput} from '@/components/CommentInput'
 
 export function Artwork() {
 	const userInfo = useSelector(selectUserInfo)
-	const {id} = useParams()
+	const id = useParams({
+		from: '/post/$id',
+		select: (params) => params.id,
+	})
 	const {data, error, isLoading, refetch} = useGetPostQuery(id)
 
 	if (isLoading) return <div>Loading...</div>
 
-	if (error) return <div>Error!</div>
+	if (error) {
+		if ('status' in error) {
+			if (error.status === 404) {
+				return <Navigate to='/404' replace={true} />
+			}
+		}
+	}
 
 	function commentTitle() {
 		switch (data.comments.length) {
@@ -51,7 +60,7 @@ export function Artwork() {
 						</Avatar>
 						<div>
 							<p className='text-2xl font-medium leading-none'>
-								<Link to={`/artist/${data.user.id}`}>
+								<Link to='/artist/$id' params={{id: data.user.id}}>
 									{data.user.displayName}
 								</Link>
 							</p>
@@ -82,7 +91,10 @@ export function Artwork() {
 									className='text-sm font-semibold inline-block py-1 px-2 rounded text-secondary-foreground bg-secondary last:mr-0 mr-1 mt-1'
 									key={tag.id}
 								>
-									<Link to={`/search/artworks?query=${tag.name}`}>
+									<Link
+										to='/search/artworks'
+										search={() => ({query: tag.name})}
+									>
 										{tag.name}
 									</Link>
 								</span>

@@ -1,4 +1,4 @@
-import {useParams, Navigate} from 'react-router-dom'
+import {useParams, Navigate} from '@tanstack/react-router'
 import {Separator} from '@/components/ui/separator'
 import {useGetArtistProfileQuery} from '../store/slices/AlleySlice'
 import {ArtCard} from '@/components/ArtCard'
@@ -10,7 +10,7 @@ function Gallery({artworks}) {
 	if (artworks.length === 0)
 		return (
 			<div className='flex flex-col items-center text-3xl'>
-				No artwork found
+				No artworks found
 			</div>
 		)
 
@@ -24,7 +24,10 @@ function Gallery({artworks}) {
 }
 
 export function Profile() {
-	const {id} = useParams()
+	const id = useParams({
+		from: '/artist/$id',
+		select: (params) => params.id,
+	})
 	const {data, error, isLoading} = useGetArtistProfileQuery(id, {
 		refetchOnMountOrArgChange: true,
 	})

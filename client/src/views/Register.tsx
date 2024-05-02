@@ -1,8 +1,7 @@
-import {useEffect} from 'react'
 import {useSelector, useDispatch} from 'react-redux'
-import {useNavigate, useLocation} from 'react-router-dom'
+import {useNavigate} from '@tanstack/react-router'
 import type {AppDispatch} from '../store'
-import {selectUserInfo, selectIsAuthLoading} from '../store/slices/AuthSlice'
+import {selectIsAuthLoading} from '../store/slices/AuthSlice'
 import {userRegister} from '@/store/slices/AuthSlice'
 import {zodResolver} from '@hookform/resolvers/zod'
 import {useForm} from 'react-hook-form'
@@ -40,8 +39,9 @@ const formSchema = z
 
 export function Register() {
 	const dispatch = useDispatch<AppDispatch>()
+	const navigate = useNavigate()
 	const isLoading = useSelector(selectIsAuthLoading)
-	const userInfo = useSelector(selectUserInfo)
+
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
@@ -52,26 +52,16 @@ export function Register() {
 		},
 	})
 
-	//Redirect if logged in
-	const navigate = useNavigate()
-	const location = useLocation()
-
-	const from = location.state?.from?.pathname || '/'
-
-	useEffect(() => {
-		if (userInfo) {
-			navigate(from, {replace: true})
-		}
-	}, [navigate, userInfo, from])
-
-	function onSubmit(values: z.infer<typeof formSchema>) {
-		dispatch(
+	async function onSubmit(values: z.infer<typeof formSchema>) {
+		await dispatch(
 			userRegister({
 				email: values.email,
 				displayName: values.displayName,
 				password: values.password,
 			})
-		)
+		).unwrap()
+
+		navigate({to: '/'})
 	}
 
 	return (

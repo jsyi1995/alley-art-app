@@ -1,5 +1,5 @@
 import {useState} from 'react'
-import {useNavigate} from 'react-router-dom'
+import {useNavigate} from '@tanstack/react-router'
 import {Input} from '@/components/ui/input'
 
 export function SearchInput() {
@@ -9,7 +9,7 @@ export function SearchInput() {
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault()
 		setSearch('')
-		navigate(`/search/artworks?query=${search}`)
+		navigate({to: '/search/artworks', search: () => ({query: search})})
 	}
 
 	return (

@@ -1,5 +1,5 @@
 import {useState, useEffect} from 'react'
-import {useSearchParams, Link} from 'react-router-dom'
+import {useSearch, Link} from '@tanstack/react-router'
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
 import {Card, CardContent, CardFooter} from '@/components/ui/card'
 import {useGetArtistsQuery} from '../../store/slices/AlleySlice'
@@ -9,8 +9,10 @@ import logo from '../../assets/profileplaceholder.png'
 
 export function Artists() {
 	const [page, setPage] = useState(0)
-	const [searchParams] = useSearchParams()
-	const query = searchParams.get('query')
+	const query = useSearch({
+		from: '/search/artists',
+		select: (search) => search.query,
+	})
 
 	const {data, error, isLoading, isFetching} = useGetArtistsQuery({
 		params: query,
@@ -38,22 +40,24 @@ export function Artists() {
 		setPage(0)
 	}, [query])
 
-	if (isLoading) return <div className='text-center'>Loading...</div>
+	if (isLoading) return <div className='text-center pt-4'>Loading...</div>
 
 	if (isFetching && page === 0)
-		return <div className='text-center'>Loading...</div>
+		return <div className='text-center pt-4'>Loading...</div>
 
 	if (error) {
 		if ('message' in error) {
 			if (error.message === 'param is required') {
-				return <div className='text-center'>Please enter a search term</div>
+				return (
+					<div className='text-center pt-4'>Please enter a search term</div>
+				)
 			}
 		}
-		return <div className='text-center'>Error!</div>
+		return <div className='text-center pt-4'>Error!</div>
 	}
 
 	if (data.count === 0)
-		return <div className='text-center'>No search results found!</div>
+		return <div className='text-center pt-4'>No search results found!</div>
 
 	function searchResultsTitle() {
 		switch (data.totalCount) {
@@ -83,7 +87,7 @@ export function Artists() {
 											</Avatar>
 											<div>
 												<p className='text-lg font-medium'>
-													<Link to={`/artist/${data.id}`}>
+													<Link to='/artist/$id' params={{id: data.id}}>
 														{data.displayName}
 													</Link>
 												</p>
@@ -95,7 +99,7 @@ export function Artists() {
 										{data.artworks.slice(0, 8).map((pic) => (
 											<div className='relative' key={pic.id}>
 												<img src={pic.thumbnailUrl} className='h-full w-full' />
-												<Link to={`/post/${pic.id}`}>
+												<Link to='/post/$id' params={{id: pic.id}}>
 													<div className='opacity-0 hover:opacity-100 duration-300 absolute inset-0 z-10 flex justify-start items-end'>
 														<div className='bg-black/70 w-full p-2 overflow-hidden'>
 															<div className='flex items-center justify-between space-x-4'>

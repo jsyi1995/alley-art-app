@@ -59,7 +59,7 @@ export function Avatar() {
 
 			formData.append('avatar', values.avatar[0])
 
-			const res = await fetch('http://localhost:8080/user/profile', {
+			const res = await fetch('http://localhost:8080/user/profile/avatar', {
 				method: 'PUT',
 				body: formData,
 				headers: {
@@ -96,7 +96,12 @@ export function Avatar() {
 							render={() => (
 								<FormItem>
 									<FormControl>
-										<Input {...fileRef} disabled={isLoading} type='file' />
+										<Input
+											{...fileRef}
+											disabled={isLoading}
+											type='file'
+											className='dark:file:text-foreground'
+										/>
 									</FormControl>
 									<FormMessage />
 								</FormItem>

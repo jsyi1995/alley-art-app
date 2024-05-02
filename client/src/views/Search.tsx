@@ -1,13 +1,27 @@
 import {useState, useEffect} from 'react'
-import {useSearchParams, Outlet, useLocation, Link} from 'react-router-dom'
+import {
+	Outlet,
+	Link,
+	useSearch,
+	useRouterState,
+	useNavigate,
+} from '@tanstack/react-router'
 import {ToggleGroup, ToggleGroupItem} from '@/components/ui/toggle-group'
 import {Input} from '@/components/ui/input'
 
 export function Search() {
 	const [search, setSearch] = useState('')
-	const [searchParams, setSearchParams] = useSearchParams()
-	const query = searchParams.get('query')
-	const location = useLocation()
+	const query = useSearch({
+		from: '/search',
+		select: (search) => search.query,
+	})
+
+	const location = useRouterState({
+		select: (state) => state.location,
+	})
+
+	const navigate = useNavigate({from: '/search'})
+
 	const path = location.pathname
 	const lastItem = path.substring(path.lastIndexOf('/') + 1)
 
@@ -19,9 +33,13 @@ export function Search() {
 		setSearch(term)
 
 		if (term.length > 0) {
-			setSearchParams({query: term})
+			navigate({
+				search: () => ({query: term}),
+			})
 		} else {
-			setSearchParams()
+			navigate({
+				search: () => ({query: ''}),
+			})
 		}
 	}
 
@@ -29,16 +47,12 @@ export function Search() {
 		<div className='p-8 pt-6'>
 			<ToggleGroup type='single' value={lastItem}>
 				<ToggleGroupItem value='artworks'>
-					<Link
-						to={query ? `/search/artworks?query=${query}` : `/search/artworks`}
-					>
+					<Link to='/search/artworks' search={() => ({query: query})}>
 						<p className='text-lg'>Artworks</p>
 					</Link>
 				</ToggleGroupItem>
 				<ToggleGroupItem value='artists'>
-					<Link
-						to={query ? `/search/artists?query=${query}` : `/search/artists`}
-					>
+					<Link to='/search/artists' search={() => ({query: query})}>
 						<p className='text-lg'>Artists</p>
 					</Link>
 				</ToggleGroupItem>

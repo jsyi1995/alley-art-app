@@ -1,4 +1,4 @@
-import {Link} from 'react-router-dom'
+import {Link} from '@tanstack/react-router'
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
 import {Separator} from '@/components/ui/separator'
 import {ScrollArea} from '@/components/ui/scroll-area'
@@ -19,7 +19,7 @@ function CommentItem({data, isNotLast}) {
 						</Avatar>
 						<div>
 							<p className='text-sm font-medium'>
-								<Link to={`/artist/${data.user.id}`}>
+								<Link to='/artist/$id' params={{id: data.user.id}}>
 									{data.user.displayName}
 								</Link>
 							</p>
@@ -43,6 +43,7 @@ export function Comment({comments}) {
 						<CommentItem
 							data={comment}
 							isNotLast={index !== comments.length - 1}
+							key={comment.id}
 						/>
 					))}
 				</ScrollArea>
@@ -52,6 +53,7 @@ export function Comment({comments}) {
 						<CommentItem
 							data={comment}
 							isNotLast={index !== comments.length - 1}
+							key={comment.id}
 						/>
 					))}
 				</>
