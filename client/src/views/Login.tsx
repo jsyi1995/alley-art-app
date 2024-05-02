@@ -1,8 +1,7 @@
-import {useEffect} from 'react'
 import {useSelector, useDispatch} from 'react-redux'
-import {useNavigate, useLocation} from 'react-router-dom'
+import {useSearch, useNavigate} from '@tanstack/react-router'
 import type {AppDispatch} from '../store'
-import {selectUserInfo, selectIsAuthLoading} from '../store/slices/AuthSlice'
+import {selectIsAuthLoading} from '../store/slices/AuthSlice'
 import {userLogin} from '@/store/slices/AuthSlice'
 import {zodResolver} from '@hookform/resolvers/zod'
 import {useForm} from 'react-hook-form'
@@ -18,6 +17,8 @@ import {
 } from '@/components/ui/form'
 import {Input} from '@/components/ui/input'
 
+const fallback = '/' as const
+
 const formSchema = z.object({
 	email: z.string(),
 	password: z.string(),
@@ -25,8 +26,10 @@ const formSchema = z.object({
 
 export function Login() {
 	const dispatch = useDispatch<AppDispatch>()
+	const search = useSearch({from: '/login'})
+	const navigate = useNavigate({from: '/login'})
 	const isLoading = useSelector(selectIsAuthLoading)
-	const userInfo = useSelector(selectUserInfo)
+
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
@@ -35,25 +38,15 @@ export function Login() {
 		},
 	})
 
-	const navigate = useNavigate()
-	const location = useLocation()
-
-	const from = location.state?.from?.pathname || '/'
-
-	//Redirect if logged in
-	useEffect(() => {
-		if (userInfo) {
-			navigate(from, {replace: true})
-		}
-	}, [navigate, userInfo, from])
-
-	function onSubmit(values: z.infer<typeof formSchema>) {
-		dispatch(
+	async function onSubmit(values: z.infer<typeof formSchema>) {
+		await dispatch(
 			userLogin({
 				email: values.email,
 				password: values.password,
 			})
-		)
+		).unwrap()
+
+		navigate({to: search.redirect || fallback})
 	}
 
 	return (

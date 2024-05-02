@@ -1,12 +1,14 @@
 import {useState, useEffect} from 'react'
-import {useSearchParams} from 'react-router-dom'
+import {useSearch} from '@tanstack/react-router'
 import {useGetSearchQuery} from '../../store/slices/AlleySlice'
 import {ArtCard} from '@/components/ArtCard'
 
 export function Artworks() {
 	const [page, setPage] = useState(0)
-	const [searchParams] = useSearchParams()
-	const query = searchParams.get('query')
+	const query = useSearch({
+		from: '/search/artworks',
+		select: (search) => search.query,
+	})
 	const {data, error, isLoading, isFetching} = useGetSearchQuery({
 		params: query,
 		page,
@@ -33,22 +35,24 @@ export function Artworks() {
 		setPage(0)
 	}, [query])
 
-	if (isLoading) return <div className='text-center'>Loading...</div>
+	if (isLoading) return <div className='text-center pt-4'>Loading...</div>
 
 	if (isFetching && page === 0)
-		return <div className='text-center'>Loading...</div>
+		return <div className='text-center pt-4'>Loading...</div>
 
 	if (error) {
 		if ('message' in error) {
 			if (error.message === 'param is required') {
-				return <div className='text-center'>Please enter a search term</div>
+				return (
+					<div className='text-center pt-4'>Please enter a search term</div>
+				)
 			}
 		}
-		return <div className='text-center'>Error!</div>
+		return <div className='text-center pt-4'>Error!</div>
 	}
 
 	if (data.count === 0)
-		return <div className='text-center'>No search results found!</div>
+		return <div className='text-center pt-4'>No search results found!</div>
 
 	function searchResultsTitle() {
 		switch (data.totalCount) {

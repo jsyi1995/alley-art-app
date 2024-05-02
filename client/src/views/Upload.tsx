@@ -1,6 +1,6 @@
 import {useState} from 'react'
 import {useSelector} from 'react-redux'
-import {useNavigate} from 'react-router-dom'
+import {useNavigate} from '@tanstack/react-router'
 import {selectUserInfo, selectUserToken} from '../store/slices/AuthSlice'
 import {Tag, TagInput} from '@/components/tags/tag-input'
 import {zodResolver} from '@hookform/resolvers/zod'
@@ -70,6 +70,12 @@ export function Upload() {
 	const userInfo = useSelector(selectUserInfo)
 	const userToken = useSelector(selectUserToken)
 
+	let id = ''
+
+	if (userInfo) {
+		id = userInfo.id.toString()
+	}
+
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
@@ -111,7 +117,7 @@ export function Upload() {
 				.then((res) => res.json())
 				.then(() => {
 					setIsLoading(false)
-					navigate(`/artist/${userInfo?.id}`)
+					navigate({to: '/artist/$id', params: {id: id}})
 					toast({
 						description: 'Upload successful!',
 					})

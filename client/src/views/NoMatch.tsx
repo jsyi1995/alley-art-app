@@ -1,4 +1,4 @@
-import {Link} from 'react-router-dom'
+import {Link} from '@tanstack/react-router'
 
 export function NoMatch() {
 	return (
@@ -8,7 +8,7 @@ export function NoMatch() {
 					<div className='grid gap-2 text-center'>
 						<h1 className='text-6xl font-bold'>404</h1>
 						<p className='text-balance text-muted-foreground'>
-							<Link to={`/`}>Return Home</Link>
+							<Link to='/'>Return Home</Link>
 						</p>
 					</div>
 				</div>
