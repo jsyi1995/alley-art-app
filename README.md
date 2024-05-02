@@ -4,8 +4,5 @@ Alley is an artist community application where users can upload art and interact
 
 ## To Run
 
-Coming soon
-
-## License
-
-[MIT](https://choosealicense.com/licenses/mit/)
+- **Docker Setup:** To setup using Docker Compose, simply run via `docker compose up -d`.
+- **Local Setup:** To setup a local dev environment, see [LocalSetupGuide.md](./LocalSetupGuide.md).

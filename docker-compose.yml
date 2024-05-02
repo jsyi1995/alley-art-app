@@ -1,25 +1,29 @@
 version: '3.8'
 
 services:
-  #server:
-  #build:
-  #context: ./server
-  #dockerfile: Dockerfile
-  #container_name: backend
-  #environment:
-  #- DATABASE_HOST=postgres
-  #ports:
-  #- 8080:8080
-  #depends_on:
-  #- postgres
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+      container_name: backend
+  environment:
+    - DATABASE_HOST=alleydb
+    - POSTGRES_USER=postgres
+    - POSTGRES_PASSWORD=mysecretpass
+  ports:
+    - 8080:8080
+  depends_on:
+    - db
 
-  postgres:
+  db:
+    container_name: alleydb
     image: postgres:14-alpine
     restart: always
     environment:
-      - POSTGRES_PASSWORD=mysecretpassword
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=mysecretpass
     ports:
-      - 5432:5432
+      - 5431:5431
     volumes:
       - postgresdb:/var/lib/postgresql/data
 
