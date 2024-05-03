@@ -3,7 +3,7 @@ import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
 import {Separator} from '@/components/ui/separator'
 import {ScrollArea} from '@/components/ui/scroll-area'
 
-import logo from '../assets/profileplaceholder.png'
+import logo from '../../public/profileplaceholder.png'
 
 function CommentItem({data, isNotLast}) {
 	return (

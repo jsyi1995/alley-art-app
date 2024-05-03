@@ -18,6 +18,7 @@ import {
 	FormDescription,
 } from '@/components/ui/form'
 import {Input} from '@/components/ui/input'
+import {useToast} from '@/components/ui/use-toast'
 
 const formSchema = z
 	.object({
@@ -41,6 +42,7 @@ export function Register() {
 	const dispatch = useDispatch<AppDispatch>()
 	const navigate = useNavigate()
 	const isLoading = useSelector(selectIsAuthLoading)
+	const {toast} = useToast()
 
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
@@ -53,15 +55,23 @@ export function Register() {
 	})
 
 	async function onSubmit(values: z.infer<typeof formSchema>) {
-		await dispatch(
-			userRegister({
-				email: values.email,
-				displayName: values.displayName,
-				password: values.password,
-			})
-		).unwrap()
+		try {
+			await dispatch(
+				userRegister({
+					email: values.email,
+					displayName: values.displayName,
+					password: values.password,
+				})
+			).unwrap()
 
-		navigate({to: '/'})
+			navigate({to: '/'})
+		} catch (err) {
+			toast({
+				variant: 'destructive',
+				title: 'Uh oh! Something went wrong.',
+				description: 'There was a problem with registering.',
+			})
+		}
 	}
 
 	return (

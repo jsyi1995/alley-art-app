@@ -67,15 +67,24 @@ export function Avatar() {
 				},
 			})
 
-			const data = await res.json()
+			if (res.ok) {
+				const data = await res.json()
 
-			dispatch(setCredentials(data))
+				dispatch(setCredentials(data))
+				setIsLoading(false)
+				toast({
+					description: 'Your avatar has been updated.',
+				})
+			} else {
+				throw res
+			}
+		} catch (error) {
 			setIsLoading(false)
 			toast({
-				description: 'Your avatar has been updated.',
+				variant: 'destructive',
+				title: 'Uh oh! Something went wrong.',
+				description: 'There was a problem updating your avatar.',
 			})
-		} catch (error) {
-			console.log(error)
 		}
 	}
 

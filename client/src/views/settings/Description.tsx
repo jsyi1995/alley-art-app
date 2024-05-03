@@ -49,27 +49,37 @@ export function Description() {
 		try {
 			setIsLoading(true)
 
-			const formData = new FormData()
-
-			formData.append('description', values.description)
+			const body = {
+				description: values.description,
+			}
 
 			const res = await fetch('http://localhost:8080/user/profile', {
 				method: 'PUT',
-				body: formData,
 				headers: {
 					Authorization: `Bearer ${userToken}`,
+					'Content-Type': 'application/json',
 				},
+				body: JSON.stringify(body),
 			})
 
-			const data = await res.json()
+			if (res.ok) {
+				const data = await res.json()
 
-			dispatch(setCredentials(data))
+				dispatch(setCredentials(data))
+				setIsLoading(false)
+				toast({
+					description: 'Your description has been updated.',
+				})
+			} else {
+				throw res
+			}
+		} catch (error) {
 			setIsLoading(false)
 			toast({
-				description: 'Your description has been updated.',
+				variant: 'destructive',
+				title: 'Uh oh! Something went wrong.',
+				description: 'There was a problem updating your description.',
 			})
-		} catch (error) {
-			console.log(error)
 		}
 	}
 

@@ -14,39 +14,43 @@ interface LoginObject {
 
 export const userRegister = createAsyncThunk(
 	'auth/register',
-	async (user: RegisterObject) => {
-		const response = await fetch('http://localhost:8080/user/sign-up', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify(user),
-		})
+	async (user: RegisterObject, {rejectWithValue}) => {
+		try {
+			const response = await fetch('http://localhost:8080/user/sign-up', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(user),
+			})
 
-		const data = await response.json()
+			const data = await response.json()
 
-		localStorage.setItem('userToken', data.token)
-		localStorage.setItem('userInfo', JSON.stringify(data.user))
-		return data
+			return data
+		} catch (err) {
+			return rejectWithValue(err)
+		}
 	}
 )
 
 export const userLogin = createAsyncThunk(
 	'auth/login',
-	async (user: LoginObject) => {
-		const response = await fetch('http://localhost:8080/user/sign-in', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify(user),
-		})
+	async (user: LoginObject, {rejectWithValue}) => {
+		try {
+			const response = await fetch('http://localhost:8080/user/sign-in', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(user),
+			})
 
-		const data = await response.json()
+			const data = await response.json()
 
-		localStorage.setItem('userToken', data.token)
-		localStorage.setItem('userInfo', JSON.stringify(data.user))
-		return data
+			return data
+		} catch (err) {
+			return rejectWithValue(err)
+		}
 	}
 )
 
@@ -104,6 +108,8 @@ export const authSlice = createSlice({
 			state.error = null
 		})
 		builder.addCase(userRegister.fulfilled, (state, action) => {
+			localStorage.setItem('userToken', action.payload.token)
+			localStorage.setItem('userInfo', JSON.stringify(action.payload.user))
 			state.loading = false
 			state.userInfo = action.payload.user
 			state.userToken = action.payload.token
@@ -117,6 +123,8 @@ export const authSlice = createSlice({
 			state.error = null
 		})
 		builder.addCase(userLogin.fulfilled, (state, action) => {
+			localStorage.setItem('userToken', action.payload.token)
+			localStorage.setItem('userInfo', JSON.stringify(action.payload.user))
 			state.loading = false
 			state.userInfo = action.payload.user
 			state.userToken = action.payload.token

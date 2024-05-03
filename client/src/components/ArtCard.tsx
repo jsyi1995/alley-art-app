@@ -1,7 +1,7 @@
 import {Link} from '@tanstack/react-router'
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
 
-import logo from '../assets/profileplaceholder.png'
+import logo from '../../public/profileplaceholder.png'
 
 export function ArtCard({data}) {
 	let image = logo

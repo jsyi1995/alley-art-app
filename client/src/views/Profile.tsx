@@ -4,7 +4,7 @@ import {useGetArtistProfileQuery} from '../store/slices/AlleySlice'
 import {ArtCard} from '@/components/ArtCard'
 import format from '../util/format'
 
-import logo from '../assets/profileplaceholder.png'
+import logo from '../../public/profileplaceholder.png'
 
 function Gallery({artworks}) {
 	if (artworks.length === 0)

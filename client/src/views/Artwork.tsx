@@ -8,6 +8,8 @@ import {useGetPostQuery} from '../store/slices/AlleySlice'
 import format from '../util/format'
 import {Comment} from '@/components/Comment'
 import {CommentInput} from '@/components/CommentInput'
+import {DeleteArt} from './artwork/DeleteArt'
+import {EditArt} from './artwork/EditArt'
 
 export function Artwork() {
 	const userInfo = useSelector(selectUserInfo)
@@ -81,6 +83,14 @@ export function Artwork() {
 					</div>
 				</div>
 				<p className='text-sm'>Created {format.toDate(data.createdAt)}</p>
+				{data.user.id === userInfo?.id && (
+					<div className='flex flex-row pt-4'>
+						<EditArt data={data} refetch={refetch} />
+						<div className='pl-3'>
+							<DeleteArt artId={data.id} userId={userInfo?.id} />
+						</div>
+					</div>
+				)}
 				<Separator className='mt-6 mb-4' />
 				{data.tags.length > 0 && (
 					<>

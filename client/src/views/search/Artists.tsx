@@ -5,7 +5,7 @@ import {Card, CardContent, CardFooter} from '@/components/ui/card'
 import {useGetArtistsQuery} from '../../store/slices/AlleySlice'
 import format from '../../util/format'
 
-import logo from '../../assets/profileplaceholder.png'
+import logo from '../../../public/profileplaceholder.png'
 
 export function Artists() {
 	const [page, setPage] = useState(0)

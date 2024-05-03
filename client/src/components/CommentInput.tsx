@@ -50,24 +50,36 @@ export function CommentInput({id, refetch}) {
 				text: values.comment,
 			}
 
-			await fetch(`http://localhost:8080/artwork/art/${id}/comment`, {
-				method: 'POST',
-				body: JSON.stringify(obj),
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${userToken}`,
-				},
-			})
+			const res = await fetch(
+				`http://localhost:8080/artwork/art/${id}/comment`,
+				{
+					method: 'POST',
+					body: JSON.stringify(obj),
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${userToken}`,
+					},
+				}
+			)
 
-			form.reset({comment: ''})
-			setTextCount(0)
-			setIsLoading(false)
-			refetch()
-			toast({
-				description: 'Comment sent!',
-			})
+			if (res.ok) {
+				form.reset({comment: ''})
+				setTextCount(0)
+				setIsLoading(false)
+				refetch()
+				toast({
+					description: 'Comment sent!',
+				})
+			} else {
+				throw res
+			}
 		} catch (error) {
-			console.log(error)
+			setIsLoading(false)
+			toast({
+				variant: 'destructive',
+				title: 'Uh oh! Something went wrong.',
+				description: 'There was a sending your comment.',
+			})
 		}
 	}
 

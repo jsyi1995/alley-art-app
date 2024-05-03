@@ -87,25 +87,21 @@ router.get('/profile', async (req: CustomRequest, res: Response) => {
 	}
 })
 
-router.put(
-	'/profile',
-	upload.none(),
-	async (req: CustomRequest, res: Response) => {
-		if (!req.user) {
-			return res.status(401).send({error: 'Authentication failed.'})
-		}
-		try {
-			const user = req.user
-
-			wrap(user).assign(req.body)
-			await DI.em.flush()
-
-			res.json(user)
-		} catch (e: any) {
-			return res.status(400).json({message: e.message})
-		}
+router.put('/profile', async (req: CustomRequest, res: Response) => {
+	if (!req.user) {
+		return res.status(401).send({error: 'Authentication failed.'})
 	}
-)
+	try {
+		const user = req.user
+
+		wrap(user).assign(req.body)
+		await DI.em.flush()
+
+		res.json(user)
+	} catch (e: any) {
+		return res.status(400).json({message: e.message})
+	}
+})
 
 router.put(
 	'/profile/avatar',
@@ -127,7 +123,7 @@ router.put(
 					})
 					.toFile('uploads/avatars/' + 'avatar-' + avatar, (err) => {
 						if (err) {
-							console.log(err)
+							return res.status(400).send({error: 'File upload failed.'})
 						}
 					})
 

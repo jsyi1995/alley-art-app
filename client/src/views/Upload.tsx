@@ -94,7 +94,7 @@ export function Upload() {
 
 	const navigate = useNavigate()
 
-	function onSubmit(values: z.infer<typeof formSchema>) {
+	async function onSubmit(values: z.infer<typeof formSchema>) {
 		try {
 			setIsLoading(true)
 			const formData = new FormData()
@@ -107,23 +107,30 @@ export function Upload() {
 				formData.append('tags[]', values.tags[i].text)
 			}
 
-			fetch('http://localhost:8080/artwork/upload', {
+			const res = await fetch('http://localhost:8080/artwork/upload', {
 				method: 'POST',
 				body: formData,
 				headers: {
 					Authorization: `Bearer ${userToken}`,
 				},
 			})
-				.then((res) => res.json())
-				.then(() => {
-					setIsLoading(false)
-					navigate({to: '/artist/$id', params: {id: id}})
-					toast({
-						description: 'Upload successful!',
-					})
+
+			if (res.ok) {
+				setIsLoading(false)
+				toast({
+					description: 'Upload successful!',
 				})
+				navigate({to: '/artist/$id', params: {id: id}})
+			} else {
+				throw res
+			}
 		} catch (error) {
-			console.log(error)
+			setIsLoading(false)
+			toast({
+				variant: 'destructive',
+				title: 'Uh oh! Something went wrong.',
+				description: 'There was a problem uploading your artwork.',
+			})
 		}
 	}
 

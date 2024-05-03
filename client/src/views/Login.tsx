@@ -16,6 +16,7 @@ import {
 	FormLabel,
 } from '@/components/ui/form'
 import {Input} from '@/components/ui/input'
+import {useToast} from '@/components/ui/use-toast'
 
 const fallback = '/' as const
 
@@ -29,6 +30,7 @@ export function Login() {
 	const search = useSearch({from: '/login'})
 	const navigate = useNavigate({from: '/login'})
 	const isLoading = useSelector(selectIsAuthLoading)
+	const {toast} = useToast()
 
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
@@ -39,14 +41,22 @@ export function Login() {
 	})
 
 	async function onSubmit(values: z.infer<typeof formSchema>) {
-		await dispatch(
-			userLogin({
-				email: values.email,
-				password: values.password,
-			})
-		).unwrap()
+		try {
+			await dispatch(
+				userLogin({
+					email: values.email,
+					password: values.password,
+				})
+			).unwrap()
 
-		navigate({to: search.redirect || fallback})
+			navigate({to: search.redirect || fallback})
+		} catch (err) {
+			toast({
+				variant: 'destructive',
+				title: 'Uh oh! Something went wrong.',
+				description: 'There was a problem with logging in.',
+			})
+		}
 	}
 
 	return (

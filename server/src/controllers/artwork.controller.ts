@@ -1,15 +1,15 @@
 import {Request, Response} from 'express'
 import Router from 'express-promise-router'
-import {QueryOrder} from '@mikro-orm/postgresql'
+import {QueryOrder, wrap} from '@mikro-orm/postgresql'
 import {v4 as uuidv4} from 'uuid'
 import sharp from 'sharp'
 import path from 'path'
 import multer from 'multer'
 import {DI} from '../server'
-import {Artwork, Comment, Tag} from '../entities'
+import {Artwork, Comment, Tag, User} from '../entities'
 
 interface CustomRequest extends Request {
-	user?: number
+	user?: User
 }
 
 const router = Router()
@@ -130,6 +130,84 @@ router.get('/art/:id', async (req: Request, res: Response) => {
 	}
 })
 
+router.patch('/art/:id', async (req: CustomRequest, res: Response) => {
+	if (!req.user) {
+		return res.status(401).send({error: 'Authentication failed.'})
+	}
+	try {
+		const params = req.params as {id: string}
+
+		const {title, description, tags} = req.body as {
+			title: string
+			description: string
+			tags: string[]
+		}
+
+		const art = await DI.artworks.findOne(+params.id, {
+			populate: ['user'],
+		})
+
+		if (!art) {
+			return res.status(404).json({message: 'Artwork not found'})
+		}
+
+		if (req.user.id !== art.user.id) {
+			return res
+				.status(404)
+				.json({message: 'You are not the user of this artwork!'})
+		}
+
+		wrap(art).assign({title, description})
+
+		if (tags) {
+			const tagArr = []
+
+			for (let i = 0; i < tags.length; i++) {
+				const t = await DI.em.create(Tag, {name: tags[i]})
+
+				tagArr.push(t)
+			}
+
+			if (tagArr.length > 0) {
+				art.tags.set(tagArr)
+			}
+		}
+
+		await DI.em.flush()
+
+		res.json(art)
+	} catch (e: any) {
+		return res.status(400).json({message: e.message})
+	}
+})
+
+router.delete('/art/:id', async (req: CustomRequest, res: Response) => {
+	if (!req.user) {
+		return res.status(401).send({error: 'Authentication failed.'})
+	}
+	try {
+		const params = req.params as {id: string}
+
+		const art = await DI.artworks.findOne(+params.id)
+
+		if (!art) {
+			return res.status(404).json({message: 'Artwork not found'})
+		}
+
+		if (req.user.id !== art.user.id) {
+			return res
+				.status(404)
+				.json({message: 'You are not the user of this artwork!'})
+		}
+
+		await DI.em.remove(art).flush()
+
+		res.json({success: true})
+	} catch (e: any) {
+		return res.status(400).json({message: e.message})
+	}
+})
+
 router.post('/art/:id/comment', async (req: CustomRequest, res: Response) => {
 	if (!req.user) {
 		return res.status(401).send({error: 'Authentication failed.'})
@@ -181,7 +259,7 @@ router.post(
 					})
 					.toFile('uploads/thumbnails/' + 'thumbnail-' + thumbnail, (err) => {
 						if (err) {
-							console.log(err)
+							return res.status(400).send({error: 'File upload failed.'})
 						}
 					})
 
@@ -189,7 +267,7 @@ router.post(
 					'uploads/images/' + 'image-' + thumbnail,
 					(err) => {
 						if (err) {
-							console.log(err)
+							return res.status(400).send({error: 'File upload failed.'})
 						}
 					}
 				)

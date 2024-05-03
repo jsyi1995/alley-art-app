@@ -15,7 +15,7 @@ import {
 
 import {useTheme} from './ThemeProvider'
 
-import logo from '../assets/profileplaceholder.png'
+import logo from '../../public/profileplaceholder.png'
 
 export function UserNav() {
 	const dispatch = useDispatch()
