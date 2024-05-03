@@ -8,12 +8,27 @@ export class UserRepository extends EntityRepository<User> {
 	}
 
 	async login(email: string, password: string) {
-		// use more generic error so we don't leak such email is registered
 		const err = new Error('Invalid combination of email and password')
 		const user = await this.findOneOrFail(
 			{email},
 			{
-				populate: ['password'], // password is a lazy property, we need to populate it
+				populate: ['password'],
+				failHandler: () => err,
+			}
+		)
+		if (await user.verifyPassword(password)) {
+			return user
+		}
+
+		throw err
+	}
+
+	async checkPassword(id: number, password: string) {
+		const err = new Error('Invalid password')
+		const user = await this.findOneOrFail(
+			{id},
+			{
+				populate: ['password'],
 				failHandler: () => err,
 			}
 		)

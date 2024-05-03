@@ -60,7 +60,7 @@ export function Avatar() {
 			formData.append('avatar', values.avatar[0])
 
 			const res = await fetch('http://localhost:8080/user/profile/avatar', {
-				method: 'PUT',
+				method: 'PATCH',
 				body: formData,
 				headers: {
 					Authorization: `Bearer ${userToken}`,

@@ -56,7 +56,7 @@ export function DisplayName() {
 			}
 
 			const res = await fetch('http://localhost:8080/user/profile', {
-				method: 'PUT',
+				method: 'PATCH',
 				headers: {
 					Authorization: `Bearer ${userToken}`,
 					'Content-Type': 'application/json',

@@ -3,7 +3,7 @@ import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
 import {Separator} from '@/components/ui/separator'
 import {ScrollArea} from '@/components/ui/scroll-area'
 
-import logo from '../../public/profileplaceholder.png'
+import logo from '/profileplaceholder.png'
 
 function CommentItem({data, isNotLast}) {
 	return (
@@ -12,10 +12,8 @@ function CommentItem({data, isNotLast}) {
 				<div className='flex items-center justify-between space-x-4 pt-4'>
 					<div className='flex items-center space-x-4'>
 						<Avatar>
-							<AvatarImage
-								src={data.user.avatarUrl ? data.user.avatarUrl : logo}
-							/>
-							<AvatarFallback>OM</AvatarFallback>
+							<AvatarImage src={data.user.avatarUrl || logo} />
+							<AvatarFallback>{data.user.displayName.charAt(0)}</AvatarFallback>
 						</Avatar>
 						<div>
 							<p className='text-sm font-medium'>

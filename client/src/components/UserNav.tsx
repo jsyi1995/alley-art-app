@@ -15,7 +15,7 @@ import {
 
 import {useTheme} from './ThemeProvider'
 
-import logo from '../../public/profileplaceholder.png'
+import logo from '/profileplaceholder.png'
 
 export function UserNav() {
 	const dispatch = useDispatch()
@@ -35,12 +35,6 @@ export function UserNav() {
 		return null
 	}
 
-	let avatarUrl = logo
-
-	if (userInfo.avatarUrl) {
-		avatarUrl = userInfo.avatarUrl
-	}
-
 	const id = userInfo.id.toString()
 
 	return (
@@ -48,7 +42,7 @@ export function UserNav() {
 			<DropdownMenuTrigger asChild>
 				<Button variant='ghost' className='relative h-8 w-8 rounded-full'>
 					<Avatar className='h-8 w-8'>
-						<AvatarImage src={avatarUrl} />
+						<AvatarImage src={userInfo.avatarUrl || logo} />
 						<AvatarFallback>{userInfo.displayName.charAt(0)}</AvatarFallback>
 					</Avatar>
 				</Button>

@@ -23,6 +23,8 @@ import {Avatar} from '../views/settings/Avatar'
 import {Email} from '../views/settings/Email'
 import {DisplayName} from '../views/settings/DisplayName'
 import {Description} from '../views/settings/Description'
+import {Password} from '../views/settings/Password'
+import {DeleteAccount} from '../views/settings/DeleteAccount'
 import {Artists} from '../views/search/Artists'
 import {Artworks} from '../views/search/Artworks'
 import * as z from 'zod'
@@ -188,6 +190,19 @@ const settingsProfileRoute = createRoute({
 	},
 })
 
+const settingsSecurityRoute = createRoute({
+	getParentRoute: () => settingsRoute,
+	path: '/security',
+	component: function SettingsProfileRoute() {
+		return (
+			<>
+				<Password />
+				<DeleteAccount />
+			</>
+		)
+	},
+})
+
 const missingRoute = createRoute({
 	getParentRoute: () => rootRoute,
 	path: '/404',
@@ -202,6 +217,10 @@ export const routeTree = rootRoute.addChildren([
 	registerRoute,
 	uploadRoute,
 	searchRoute.addChildren([searchArtworksRoute, searchArtistsRoute]),
-	settingsRoute.addChildren([settingsAccountRoute, settingsProfileRoute]),
+	settingsRoute.addChildren([
+		settingsAccountRoute,
+		settingsProfileRoute,
+		settingsSecurityRoute,
+	]),
 	missingRoute,
 ])

@@ -34,7 +34,17 @@ export function Settings() {
 							Profile
 						</span>
 					</Link>
-					{!!(<span>Security</span>)}
+					<Link to='/settings/security'>
+						<span
+							className={
+								location.pathname === '/settings/security'
+									? 'font-semibold text-primary'
+									: undefined
+							}
+						>
+							Security
+						</span>
+					</Link>
 				</nav>
 				<div className='grid gap-6'>
 					<Outlet />

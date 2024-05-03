@@ -1,15 +1,9 @@
 import {Link} from '@tanstack/react-router'
 import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
 
-import logo from '../../public/profileplaceholder.png'
+import logo from '/profileplaceholder.png'
 
 export function ArtCard({data}) {
-	let image = logo
-
-	if (data.user.avatarUrl) {
-		image = data.user.avatarUrl
-	}
-
 	return (
 		<div className='relative'>
 			<img src={data.thumbnailUrl} className='h-full w-full' />
@@ -19,8 +13,10 @@ export function ArtCard({data}) {
 						<div className='flex items-center justify-between space-x-4'>
 							<div className='flex items-center space-x-2'>
 								<Avatar>
-									<AvatarImage src={image} />
-									<AvatarFallback>OM</AvatarFallback>
+									<AvatarImage src={data.user.avatarUrl || logo} />
+									<AvatarFallback>
+										{data.user.displayName.charAt(0)}
+									</AvatarFallback>
 								</Avatar>
 								<div>
 									<p className='text-lg font-medium truncate'>{data.title}</p>

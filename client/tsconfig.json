@@ -21,6 +21,8 @@
 		"noFallthroughCasesInSwitch": true,
 		"noImplicitAny": false,
 
+		"useUnknownInCatchVariables": false,
+
 		"baseUrl": ".",
 		"paths": {
 			"@/*": ["./src/*"]

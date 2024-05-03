@@ -5,7 +5,7 @@ import {Card, CardContent, CardFooter} from '@/components/ui/card'
 import {useGetArtistsQuery} from '../../store/slices/AlleySlice'
 import format from '../../util/format'
 
-import logo from '../../../public/profileplaceholder.png'
+import logo from '/profileplaceholder.png'
 
 export function Artists() {
 	const [page, setPage] = useState(0)
@@ -80,10 +80,10 @@ export function Artists() {
 									<div className='flex items-center justify-between space-x-4 pt-4'>
 										<div className='flex items-center space-x-4'>
 											<Avatar>
-												<AvatarImage
-													src={data.avatarUrl ? data.avatarUrl : logo}
-												/>
-												<AvatarFallback>OM</AvatarFallback>
+												<AvatarImage src={data.avatarUrl || logo} />
+												<AvatarFallback>
+													{data.displayName.charAt(0)}
+												</AvatarFallback>
 											</Avatar>
 											<div>
 												<p className='text-lg font-medium'>

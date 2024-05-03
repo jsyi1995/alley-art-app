@@ -9,7 +9,7 @@ import {wrap, QueryOrder} from '@mikro-orm/postgresql'
 
 import {DI} from '../server'
 
-import {User} from '../entities'
+import {User, Artwork} from '../entities'
 
 interface CustomRequest extends Request {
 	user?: User
@@ -75,6 +75,46 @@ router.post('/sign-in', async (req: Request, res: Response) => {
 	}
 })
 
+router.delete('/delete-account', async (req: CustomRequest, res: Response) => {
+	try {
+		if (!req.user) {
+			return res.status(401).send({error: 'Authentication failed.'})
+		}
+
+		const artworks = await DI.em.findAll(Artwork, {where: {user: req.user}})
+
+		await DI.em.remove(artworks).flush()
+
+		await DI.em.remove(req.user).flush()
+
+		res.json({success: true})
+	} catch (e: any) {
+		return res.status(400).json({message: e.message})
+	}
+})
+
+router.post('/change-password', async (req: CustomRequest, res: Response) => {
+	try {
+		if (!req.user) {
+			return res.status(401).send({error: 'Authentication failed.'})
+		}
+
+		const {oldPassword, newPassword} = req.body as {
+			oldPassword: string
+			newPassword: string
+		}
+
+		const user = await DI.user.checkPassword(req.user.id, oldPassword)
+
+		wrap(user).assign({password: newPassword})
+		await DI.em.flush()
+
+		res.json(user)
+	} catch (e: any) {
+		return res.status(400).json({message: e.message})
+	}
+})
+
 router.get('/profile', async (req: CustomRequest, res: Response) => {
 	try {
 		if (!req.user) {
@@ -87,7 +127,7 @@ router.get('/profile', async (req: CustomRequest, res: Response) => {
 	}
 })
 
-router.put('/profile', async (req: CustomRequest, res: Response) => {
+router.patch('/profile', async (req: CustomRequest, res: Response) => {
 	if (!req.user) {
 		return res.status(401).send({error: 'Authentication failed.'})
 	}
@@ -103,7 +143,7 @@ router.put('/profile', async (req: CustomRequest, res: Response) => {
 	}
 })
 
-router.put(
+router.patch(
 	'/profile/avatar',
 	upload.single('avatar'),
 	async (req: CustomRequest, res: Response) => {

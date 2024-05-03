@@ -51,10 +51,16 @@ export function Login() {
 
 			navigate({to: search.redirect || fallback})
 		} catch (err) {
+			let message = 'There was a problem with logging in.'
+
+			if (err.message) {
+				message = err.message
+			}
+
 			toast({
 				variant: 'destructive',
 				title: 'Uh oh! Something went wrong.',
-				description: 'There was a problem with logging in.',
+				description: message,
 			})
 		}
 	}

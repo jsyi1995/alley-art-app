@@ -26,7 +26,11 @@ export const userRegister = createAsyncThunk(
 
 			const data = await response.json()
 
-			return data
+			if (response.ok) {
+				return data
+			} else {
+				throw data
+			}
 		} catch (err) {
 			return rejectWithValue(err)
 		}
@@ -47,7 +51,11 @@ export const userLogin = createAsyncThunk(
 
 			const data = await response.json()
 
-			return data
+			if (response.ok) {
+				return data
+			} else {
+				throw data
+			}
 		} catch (err) {
 			return rejectWithValue(err)
 		}

@@ -4,7 +4,7 @@ import {useGetArtistProfileQuery} from '../store/slices/AlleySlice'
 import {ArtCard} from '@/components/ArtCard'
 import format from '../util/format'
 
-import logo from '../../public/profileplaceholder.png'
+import logo from '/profileplaceholder.png'
 
 function Gallery({artworks}) {
 	if (artworks.length === 0)
@@ -69,11 +69,7 @@ export function Profile() {
 			</div>
 			<div className='lg:block p-3'>
 				<div className='flex flex-col items-center'>
-					{data.avatarUrl ? (
-						<img className='rounded-full w-1/2' src={data.avatarUrl} />
-					) : (
-						<img className='rounded-full w-1/2' src={logo} />
-					)}
+					<img className='rounded-full w-1/2' src={data.avatarUrl || logo} />
 					<p className='text-3xl font-bold pt-4'>{data.displayName}</p>
 				</div>
 				<Separator className='mt-6 mb-4' />

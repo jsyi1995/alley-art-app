@@ -11,6 +11,8 @@ import {CommentInput} from '@/components/CommentInput'
 import {DeleteArt} from './artwork/DeleteArt'
 import {EditArt} from './artwork/EditArt'
 
+import logo from '/profileplaceholder.png'
+
 export function Artwork() {
 	const userInfo = useSelector(selectUserInfo)
 	const id = useParams({
@@ -57,8 +59,8 @@ export function Artwork() {
 				<div className='flex items-center justify-between space-x-4'>
 					<div className='flex items-center space-x-4'>
 						<Avatar>
-							<AvatarImage src={data.user.avatarUrl} />
-							<AvatarFallback>OM</AvatarFallback>
+							<AvatarImage src={data.user.avatarUrl || logo} />
+							<AvatarFallback>{data.user.displayName.charAt(0)}</AvatarFallback>
 						</Avatar>
 						<div>
 							<p className='text-2xl font-medium leading-none'>

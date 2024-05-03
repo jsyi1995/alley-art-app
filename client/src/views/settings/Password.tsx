@@ -26,17 +26,24 @@ import {useToast} from '@/components/ui/use-toast'
 
 const formSchema = z
 	.object({
-		email: z.string().email({
-			message: 'Invalid email address',
+		oldPassword: z.string().min(12, {
+			message: 'Password must be at least 12 characters.',
+		}),
+		newPassword: z.string().min(12, {
+			message: 'Password must be at least 12 characters.',
 		}),
 		confirm: z.string(),
 	})
-	.refine((data) => data.email === data.confirm, {
-		message: 'Emails do not match',
+	.refine((data) => data.newPassword === data.confirm, {
+		message: 'Passwords do not match',
 		path: ['confirm'],
 	})
+	.refine((data) => data.oldPassword !== data.newPassword, {
+		message: 'Passwords are the same',
+		path: ['newPassword'],
+	})
 
-export function Email() {
+export function Password() {
 	const dispatch = useDispatch()
 	const {toast} = useToast()
 	const [isLoading, setIsLoading] = useState(false)
@@ -45,7 +52,8 @@ export function Email() {
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
-			email: '',
+			oldPassword: '',
+			newPassword: '',
 			confirm: '',
 		},
 	})
@@ -55,11 +63,12 @@ export function Email() {
 			setIsLoading(true)
 
 			const body = {
-				email: values.email,
+				oldPassword: values.oldPassword,
+				newPassword: values.newPassword,
 			}
 
-			const res = await fetch('http://localhost:8080/user/profile', {
-				method: 'PATCH',
+			const res = await fetch('http://localhost:8080/user/change-password', {
+				method: 'POST',
 				headers: {
 					Authorization: `Bearer ${userToken}`,
 					'Content-Type': 'application/json',
@@ -67,24 +76,30 @@ export function Email() {
 				body: JSON.stringify(body),
 			})
 
-			if (res.ok) {
-				const data = await res.json()
+			const data = await res.json()
 
+			if (res.ok) {
 				dispatch(setCredentials(data))
 				setIsLoading(false)
-				form.reset({email: '', confirm: ''})
+				form.reset({oldPassword: '', newPassword: '', confirm: ''})
 				toast({
-					description: 'Your email has been updated.',
+					description: 'Your password has been updated.',
 				})
 			} else {
-				throw res
+				throw data
 			}
 		} catch (error) {
+			let message = 'There was a problem updating your password.'
+
+			if (error.message) {
+				message = error.message
+			}
+
 			setIsLoading(false)
 			toast({
 				variant: 'destructive',
 				title: 'Uh oh! Something went wrong.',
-				description: 'There was a problem updating your email.',
+				description: message,
 			})
 		}
 	}
@@ -92,22 +107,33 @@ export function Email() {
 	return (
 		<Card>
 			<CardHeader>
-				<CardTitle>Email</CardTitle>
-				<CardDescription>
-					Update the email you use for your account.
-				</CardDescription>
+				<CardTitle>Password</CardTitle>
+				<CardDescription>Update the password for your account.</CardDescription>
 			</CardHeader>
 			<CardContent>
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
 						<FormField
 							control={form.control}
-							name='email'
+							name='oldPassword'
 							render={({field}) => (
 								<FormItem>
-									<FormLabel>New Email</FormLabel>
+									<FormLabel>Old Password</FormLabel>
 									<FormControl>
-										<Input {...field} disabled={isLoading} />
+										<Input {...field} disabled={isLoading} type='password' />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name='newPassword'
+							render={({field}) => (
+								<FormItem>
+									<FormLabel>New Password</FormLabel>
+									<FormControl>
+										<Input {...field} disabled={isLoading} type='password' />
 									</FormControl>
 									<FormMessage />
 								</FormItem>
@@ -118,9 +144,9 @@ export function Email() {
 							name='confirm'
 							render={({field}) => (
 								<FormItem>
-									<FormLabel>Confirm New Email</FormLabel>
+									<FormLabel>Confirm New Password</FormLabel>
 									<FormControl>
-										<Input {...field} disabled={isLoading} />
+										<Input {...field} disabled={isLoading} type='password' />
 									</FormControl>
 									<FormMessage />
 								</FormItem>
