@@ -60,7 +60,7 @@ export function UserNav() {
 				</DropdownMenuLabel>
 				<DropdownMenuSeparator />
 				<DropdownMenuGroup>
-					<Link to='/artist/$id' params={{id: id}}>
+					<Link to='/artist/$id/gallery' params={{id: id}}>
 						<DropdownMenuItem>Profile</DropdownMenuItem>
 					</Link>
 					<Link to={'/upload'}>

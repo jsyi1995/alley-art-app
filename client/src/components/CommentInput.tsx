@@ -46,12 +46,11 @@ export function CommentInput({id, refetch}) {
 			setIsLoading(true)
 
 			const obj = {
-				id,
 				text: values.comment,
 			}
 
 			const res = await fetch(
-				`http://localhost:8080/artwork/art/${id}/comment`,
+				`http://localhost:8080/artwork/art/${id}/comments`,
 				{
 					method: 'POST',
 					body: JSON.stringify(obj),

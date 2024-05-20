@@ -40,7 +40,6 @@ export class Artwork extends BaseEntity {
 
 	@OneToMany({
 		mappedBy: 'artwork',
-		eager: true,
 		orphanRemoval: true,
 	})
 	comments = new Collection<Comment>(this)

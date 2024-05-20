@@ -6,7 +6,7 @@ import sharp from 'sharp'
 import path from 'path'
 import multer from 'multer'
 import {DI} from '../server'
-import {Artwork, Comment, Tag, User} from '../entities'
+import {Artwork, Comment, Tag, User, Like} from '../entities'
 
 interface CustomRequest extends Request {
 	user?: User
@@ -117,14 +117,20 @@ router.get('/art/:id', async (req: Request, res: Response) => {
 		const params = req.params as {id: string}
 
 		const art = await DI.artworks.findOne(+params.id, {
-			populate: ['tags', 'user', 'comments.user'],
+			populate: ['tags', 'user'],
 		})
 
 		if (!art) {
 			return res.status(404).json({message: 'Artwork not found'})
 		}
 
-		res.json(art)
+		const totalLikes = await DI.em.count(Like, {
+			artwork: {
+				id: +params.id,
+			},
+		})
+
+		res.json({...art, totalLikes})
 	} catch (e: any) {
 		return res.status(400).json({message: e.message})
 	}
@@ -208,17 +214,47 @@ router.delete('/art/:id', async (req: CustomRequest, res: Response) => {
 	}
 })
 
-router.post('/art/:id/comment', async (req: CustomRequest, res: Response) => {
+router.get('/art/:id/comments', async (req: Request, res: Response) => {
+	try {
+		const params = req.params as {id: string}
+
+		const artwork = await DI.artworks.findOne(+params.id)
+
+		if (!artwork) {
+			return res.status(404).json({message: 'Artwork not found'})
+		}
+
+		const [comments, count] = await DI.em.findAndCount(
+			Comment,
+			{artwork},
+			{
+				populate: ['user'],
+			}
+		)
+
+		res.json({comments, totalCount: count})
+	} catch (e: any) {
+		return res.status(400).json({message: e.message})
+	}
+})
+
+router.post('/art/:id/comments', async (req: CustomRequest, res: Response) => {
 	if (!req.user) {
 		return res.status(401).send({error: 'Authentication failed.'})
 	}
 	try {
-		const {id, text} = req.body as {
-			id: number
+		const params = req.params as {id: string}
+
+		const {text} = req.body as {
 			text: string
 		}
 
-		const artwork = await DI.artworks.findOneOrFail({id})
+		const artwork = await DI.artworks.findOne(+params.id)
+
+		if (!artwork) {
+			return res.status(404).json({message: 'Artwork not found'})
+		}
+
 		const comment = DI.em.create(Comment, {user: req.user, artwork, text})
 
 		artwork.comments.add(comment)
@@ -226,6 +262,95 @@ router.post('/art/:id/comment', async (req: CustomRequest, res: Response) => {
 		await DI.em.flush()
 
 		res.json(comment)
+	} catch (e: any) {
+		return res.status(400).json({message: e.message})
+	}
+})
+
+router.get('/art/:id/like', async (req: CustomRequest, res: Response) => {
+	if (!req.user) {
+		return res.status(401).send({error: 'Authentication failed.'})
+	}
+	try {
+		const params = req.params as {id: string}
+
+		const artwork = await DI.artworks.findOne(+params.id)
+
+		if (!artwork) {
+			return res.status(404).json({message: 'Artwork not found'})
+		}
+
+		const like = await DI.em.findOne(Like, {
+			user: req.user,
+			artwork,
+		})
+
+		if (!like) {
+			return res.json({liked: false})
+		}
+
+		res.json({liked: true})
+	} catch (e: any) {
+		return res.status(400).json({message: e.message})
+	}
+})
+
+router.post('/art/:id/like', async (req: CustomRequest, res: Response) => {
+	if (!req.user) {
+		return res.status(401).send({error: 'Authentication failed.'})
+	}
+	try {
+		const params = req.params as {id: string}
+
+		const artwork = await DI.artworks.findOne(+params.id)
+
+		if (!artwork) {
+			return res.status(404).json({message: 'Artwork not found'})
+		}
+
+		if (req.user.id === artwork.user.id) {
+			return res
+				.status(400)
+				.json({message: 'You are the user of this artwork!'})
+		}
+
+		const like = await DI.em.findOne(Like, {user: req.user, artwork})
+
+		if (like) {
+			return res.status(400).json({message: 'Like already exists'})
+		}
+
+		DI.em.create(Like, {user: req.user, artwork})
+
+		await DI.em.flush()
+
+		res.json({success: true})
+	} catch (e: any) {
+		return res.status(400).json({message: e.message})
+	}
+})
+
+router.delete('/art/:id/like', async (req: CustomRequest, res: Response) => {
+	if (!req.user) {
+		return res.status(401).send({error: 'Authentication failed.'})
+	}
+	try {
+		const params = req.params as {id: string}
+
+		const like = await DI.em.findOne(Like, {
+			user: req.user,
+			artwork: {
+				id: +params.id,
+			},
+		})
+
+		if (!like) {
+			return res.status(404).json({message: 'Like not found'})
+		}
+
+		await DI.em.remove(like).flush()
+
+		res.json({success: true})
 	} catch (e: any) {
 		return res.status(400).json({message: e.message})
 	}

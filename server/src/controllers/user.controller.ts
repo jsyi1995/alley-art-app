@@ -9,7 +9,7 @@ import {wrap, QueryOrder} from '@mikro-orm/postgresql'
 
 import {DI} from '../server'
 
-import {User, Artwork} from '../entities'
+import {User, Artwork, Like} from '../entities'
 
 interface CustomRequest extends Request {
 	user?: User
@@ -196,15 +196,61 @@ router.patch(
 router.get('/artist/:id', async (req: Request, res: Response) => {
 	try {
 		const params = req.params as {id: string}
-		const user = await DI.user.findOne(+params.id, {
-			populate: ['artworks', 'artworks.user'],
-		})
+		const user = await DI.user.findOne(+params.id)
 
 		if (!user) {
 			return res.status(404).json({message: 'User not found!'})
 		}
 
 		res.json(user)
+	} catch (e: any) {
+		return res.status(400).json({message: e.message})
+	}
+})
+
+router.get('/artist/:id/gallery', async (req: Request, res: Response) => {
+	try {
+		const params = req.params as {id: string}
+
+		const user = await DI.user.findOne(+params.id)
+
+		if (!user) {
+			return res.status(404).json({message: 'User not found!'})
+		}
+
+		const [artworks, count] = await DI.em.findAndCount(
+			Artwork,
+			{user},
+			{
+				populate: ['user'],
+			}
+		)
+
+		res.json({artworks, totalCount: count})
+	} catch (e: any) {
+		return res.status(400).json({message: e.message})
+	}
+})
+
+router.get('/artist/:id/likes', async (req: Request, res: Response) => {
+	try {
+		const params = req.params as {id: string}
+
+		const user = await DI.user.findOne(+params.id)
+
+		if (!user) {
+			return res.status(404).json({message: 'User not found!'})
+		}
+
+		const [likes, count] = await DI.em.findAndCount(
+			Like,
+			{user},
+			{
+				populate: ['artwork', 'artwork.user'],
+			}
+		)
+
+		res.json({likes, totalCount: count})
 	} catch (e: any) {
 		return res.status(400).json({message: e.message})
 	}

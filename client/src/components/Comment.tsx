@@ -17,7 +17,7 @@ function CommentItem({data, isNotLast}) {
 						</Avatar>
 						<div>
 							<p className='text-sm font-medium'>
-								<Link to='/artist/$id' params={{id: data.user.id}}>
+								<Link to='/artist/$id/gallery' params={{id: data.user.id}}>
 									{data.user.displayName}
 								</Link>
 							</p>

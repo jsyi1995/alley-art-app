@@ -3,15 +3,15 @@ import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar'
 import {useSelector} from 'react-redux'
 import {selectUserInfo} from '../store/slices/AuthSlice'
 import {Separator} from '@/components/ui/separator'
-import {FaEye, FaThumbsUp} from 'react-icons/fa'
+import {FaThumbsUp} from 'react-icons/fa'
 import {useGetPostQuery} from '../store/slices/AlleySlice'
 import format from '../util/format'
-import {Comment} from '@/components/Comment'
-import {CommentInput} from '@/components/CommentInput'
 import {DeleteArt} from './artwork/DeleteArt'
 import {EditArt} from './artwork/EditArt'
+import {LikeButton} from './artwork/LikeButton'
 
 import logo from '/profileplaceholder.png'
+import {Comments} from './artwork/Comments'
 
 export function Artwork() {
 	const userInfo = useSelector(selectUserInfo)
@@ -31,23 +31,6 @@ export function Artwork() {
 		}
 	}
 
-	function commentTitle() {
-		switch (data.comments.length) {
-			case 0:
-				return 'Sign in to comment!'
-			case 1:
-				return '1 Comment'
-			default:
-				return `${data.comments.length} Comments`
-		}
-	}
-
-	function getRandomInt(min, max) {
-		const minCeiled = Math.ceil(min)
-		const maxFloored = Math.floor(max)
-		return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled)
-	}
-
 	return (
 		<div className='grid lg:grid-cols-5 p-8 pt-6'>
 			<div className='col-span-3 lg:col-span-4'>
@@ -64,7 +47,7 @@ export function Artwork() {
 						</Avatar>
 						<div>
 							<p className='text-2xl font-medium leading-none'>
-								<Link to='/artist/$id' params={{id: data.user.id}}>
+								<Link to='/artist/$id/gallery' params={{id: data.user.id}}>
 									{data.user.displayName}
 								</Link>
 							</p>
@@ -76,21 +59,21 @@ export function Artwork() {
 				<p className='text-lg'>{data.description}</p>
 				<div className='flex flex-row pt-4'>
 					<div className='flex items-center'>
-						<FaEye className='mr-2 h-4 w-4' />
-						<p className='text-lg'>{getRandomInt(1000, 10000)}</p>
-					</div>
-					<div className='flex items-center pl-5'>
 						<FaThumbsUp className='mr-2 h-4 w-4' />
-						<p className='text-lg'>{getRandomInt(1, 1000)}</p>
+						<p className='text-lg'>{data.totalLikes}</p>
 					</div>
 				</div>
 				<p className='text-sm'>Created {format.toDate(data.createdAt)}</p>
-				{data.user.id === userInfo?.id && (
+				{data.user.id === userInfo?.id ? (
 					<div className='flex flex-row pt-4'>
 						<EditArt data={data} refetch={refetch} />
 						<div className='pl-3'>
 							<DeleteArt artId={data.id} userId={userInfo?.id} />
 						</div>
+					</div>
+				) : (
+					<div className='flex flex-row pt-4'>
+						<LikeButton id={data.id} />
 					</div>
 				)}
 				<Separator className='mt-6 mb-4' />
@@ -115,10 +98,7 @@ export function Artwork() {
 						<Separator className='mt-6 mb-4' />
 					</>
 				)}
-				<p className='text-lg'>{commentTitle()}</p>
-
-				{data.comments.length > 0 && <Comment comments={data.comments} />}
-				{userInfo && <CommentInput id={id} refetch={refetch} />}
+				<Comments />
 			</div>
 		</div>
 	)

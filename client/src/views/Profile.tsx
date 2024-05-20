@@ -1,36 +1,36 @@
-import {useParams, Navigate} from '@tanstack/react-router'
+import {
+	useParams,
+	Navigate,
+	Outlet,
+	Link,
+	useRouterState,
+} from '@tanstack/react-router'
 import {Separator} from '@/components/ui/separator'
 import {useGetArtistProfileQuery} from '../store/slices/AlleySlice'
-import {ArtCard} from '@/components/ArtCard'
 import format from '../util/format'
+import {ToggleGroup, ToggleGroupItem} from '@/components/ui/toggle-group'
 
 import logo from '/profileplaceholder.png'
-
-function Gallery({artworks}) {
-	if (artworks.length === 0)
-		return (
-			<div className='flex flex-col items-center text-3xl'>
-				No artworks found
-			</div>
-		)
-
-	return (
-		<div className='grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 3xl:grid-cols-8 4xl:grid-cols-10 gap-1'>
-			{artworks.map((pic) => (
-				<ArtCard data={pic} key={pic.id} />
-			))}
-		</div>
-	)
-}
 
 export function Profile() {
 	const id = useParams({
 		from: '/artist/$id',
 		select: (params) => params.id,
 	})
-	const {data, error, isLoading} = useGetArtistProfileQuery(id, {
-		refetchOnMountOrArgChange: true,
+	const {data, error, isLoading} = useGetArtistProfileQuery(id)
+
+	const location = useRouterState({
+		select: (state) => state.location,
 	})
+
+	const path = location.pathname
+	const lastItem = path.substring(path.lastIndexOf('/') + 1)
+
+	function getRandomInt(min, max) {
+		const minCeiled = Math.ceil(min)
+		const maxFloored = Math.floor(max)
+		return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled)
+	}
 
 	if (isLoading) return <div>Loading...</div>
 
@@ -42,30 +42,22 @@ export function Profile() {
 		}
 	}
 
-	function artworksTitle() {
-		switch (data.artworks.length) {
-			case 0:
-				return 'No artworks'
-			case 1:
-				return '1 artwork'
-			default:
-				return `${data.artworks.length} artworks`
-		}
-	}
-
-	function getRandomInt(min, max) {
-		const minCeiled = Math.ceil(min)
-		const maxFloored = Math.floor(max)
-		return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled)
-	}
-
 	return (
 		<div className='grid lg:grid-cols-5 p-8 pt-6'>
 			<div className='col-span-3 lg:col-span-4'>
-				<p className='text-m'>{artworksTitle()}</p>
-				<div className='pt-4 pr-4'>
-					<Gallery artworks={data.artworks} />
-				</div>
+				<ToggleGroup type='single' value={lastItem}>
+					<ToggleGroupItem value='gallery'>
+						<Link to='/artist/$id/gallery' params={{id: data.id}}>
+							<p className='text-lg'>Portfolio</p>
+						</Link>
+					</ToggleGroupItem>
+					<ToggleGroupItem value='likes'>
+						<Link to='/artist/$id/likes' params={{id: data.id}}>
+							<p className='text-lg'>Likes</p>
+						</Link>
+					</ToggleGroupItem>
+				</ToggleGroup>
+				<Outlet />
 			</div>
 			<div className='lg:block p-3'>
 				<div className='flex flex-col items-center'>

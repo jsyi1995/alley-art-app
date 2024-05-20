@@ -87,7 +87,7 @@ export function Artists() {
 											</Avatar>
 											<div>
 												<p className='text-lg font-medium'>
-													<Link to='/artist/$id' params={{id: data.id}}>
+													<Link to='/artist/$id/gallery' params={{id: data.id}}>
 														{data.displayName}
 													</Link>
 												</p>

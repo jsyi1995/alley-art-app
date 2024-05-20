@@ -41,7 +41,11 @@ export function DeleteArt({artId, userId}) {
 					description: 'Deletion successful!',
 				})
 				setOpen(false)
-				navigate({to: '/artist/$id', params: {id: userId}, replace: true})
+				navigate({
+					to: '/artist/$id/gallery',
+					params: {id: userId},
+					replace: true,
+				})
 			} else {
 				throw res
 			}

@@ -120,7 +120,7 @@ export function Upload() {
 				toast({
 					description: 'Upload successful!',
 				})
-				navigate({to: '/artist/$id', params: {id: id}})
+				navigate({to: '/artist/$id/gallery', params: {id: id}})
 			} else {
 				throw res
 			}
