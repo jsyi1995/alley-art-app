@@ -15,6 +15,8 @@ import {Search} from '../views/Search'
 import {Profile} from '../views/Profile'
 import {Gallery} from '../views/profile/Gallery'
 import {Likes} from '../views/profile/Likes'
+import {Following} from '../views/profile/Following'
+import {Followers} from '../views/profile/Followers'
 import {Artwork} from '../views/Artwork'
 import {Register} from '../views/Register'
 import {Login} from '../views/Login'
@@ -97,6 +99,18 @@ const profileLikesRoute = createRoute({
 	getParentRoute: () => profileRoute,
 	path: '/likes',
 	component: () => <Likes />,
+})
+
+const profileFollowersRoute = createRoute({
+	getParentRoute: () => profileRoute,
+	path: '/followers',
+	component: () => <Followers />,
+})
+
+const profileFollowingRoute = createRoute({
+	getParentRoute: () => profileRoute,
+	path: '/following',
+	component: () => <Following />,
 })
 
 const artworkRoute = createRoute({
@@ -225,7 +239,12 @@ const missingRoute = createRoute({
 
 export const routeTree = rootRoute.addChildren([
 	indexRoute,
-	profileRoute.addChildren([profileGalleryRoute, profileLikesRoute]),
+	profileRoute.addChildren([
+		profileGalleryRoute,
+		profileLikesRoute,
+		profileFollowersRoute,
+		profileFollowingRoute,
+	]),
 	artworkRoute,
 	loginRoute,
 	registerRoute,

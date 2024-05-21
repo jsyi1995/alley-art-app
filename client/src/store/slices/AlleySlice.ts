@@ -88,6 +88,9 @@ export const AlleyApi = createApi({
 				return currentArg !== previousArg
 			},
 		}),
+		getArtistFollow: builder.query({
+			query: (id) => `user/artist/${id}/follow`,
+		}),
 		getArtistProfile: builder.query({
 			query: (id) => `user/artist/${id}`,
 		}),
@@ -96,6 +99,12 @@ export const AlleyApi = createApi({
 		}),
 		getArtistProfileLikes: builder.query({
 			query: (id) => `user/artist/${id}/likes`,
+		}),
+		getArtistFollowers: builder.query({
+			query: (id) => `user/artist/${id}/followers`,
+		}),
+		getArtistFollowing: builder.query({
+			query: (id) => `user/artist/${id}/following`,
 		}),
 	}),
 })
@@ -108,7 +117,10 @@ export const {
 	useGetPostLikeQuery,
 	useGetSearchQuery,
 	useGetArtistsQuery,
+	useGetArtistFollowQuery,
 	useGetArtistProfileQuery,
 	useGetArtistProfileGalleryQuery,
 	useGetArtistProfileLikesQuery,
+	useGetArtistFollowersQuery,
+	useGetArtistFollowingQuery,
 } = AlleyApi

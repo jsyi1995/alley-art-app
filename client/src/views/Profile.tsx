@@ -1,3 +1,4 @@
+import {useSelector} from 'react-redux'
 import {
 	useParams,
 	Navigate,
@@ -6,13 +7,16 @@ import {
 	useRouterState,
 } from '@tanstack/react-router'
 import {Separator} from '@/components/ui/separator'
+import {selectUserInfo} from '../store/slices/AuthSlice'
 import {useGetArtistProfileQuery} from '../store/slices/AlleySlice'
+import {FollowButton} from '@/components/FollowButton'
 import format from '../util/format'
 import {ToggleGroup, ToggleGroupItem} from '@/components/ui/toggle-group'
 
 import logo from '/profileplaceholder.png'
 
 export function Profile() {
+	const userInfo = useSelector(selectUserInfo)
 	const id = useParams({
 		from: '/artist/$id',
 		select: (params) => params.id,
@@ -25,12 +29,6 @@ export function Profile() {
 
 	const path = location.pathname
 	const lastItem = path.substring(path.lastIndexOf('/') + 1)
-
-	function getRandomInt(min, max) {
-		const minCeiled = Math.ceil(min)
-		const maxFloored = Math.floor(max)
-		return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled)
-	}
 
 	if (isLoading) return <div>Loading...</div>
 
@@ -56,6 +54,16 @@ export function Profile() {
 							<p className='text-lg'>Likes</p>
 						</Link>
 					</ToggleGroupItem>
+					<ToggleGroupItem value='followers'>
+						<Link to='/artist/$id/followers' params={{id: data.id}}>
+							<p className='text-lg'>Followers</p>
+						</Link>
+					</ToggleGroupItem>
+					<ToggleGroupItem value='following'>
+						<Link to='/artist/$id/following' params={{id: data.id}}>
+							<p className='text-lg'>Following</p>
+						</Link>
+					</ToggleGroupItem>
 				</ToggleGroup>
 				<Outlet />
 			</div>
@@ -65,10 +73,10 @@ export function Profile() {
 					<p className='text-3xl font-bold pt-4'>{data.displayName}</p>
 				</div>
 				<Separator className='mt-6 mb-4' />
-				{data.firstName && (
-					<p className='text-lg font-bold'>
-						{data.first_name} {data.last_name}
-					</p>
+				{userInfo?.id !== data.id && (
+					<div className='flex flex-row pb-4'>
+						<FollowButton id={data.id} />
+					</div>
 				)}
 				{data.description ? (
 					<p className='text-m'>{data.description}</p>
@@ -78,11 +86,11 @@ export function Profile() {
 				<div className='flex pt-4'>
 					<div>
 						<p className='font-bold'>Followers</p>
-						<p>{getRandomInt(1, 10000)}</p>
+						<p>{data.totalFollowers}</p>
 					</div>
 					<div className='ml-5'>
 						<p className='font-bold'>Following</p>
-						<p>{getRandomInt(1, 1000)}</p>
+						<p>{data.totalFollowing}</p>
 					</div>
 				</div>
 				<Separator className='mt-6 mb-4' />

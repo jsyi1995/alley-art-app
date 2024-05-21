@@ -9,9 +9,10 @@ import format from '../util/format'
 import {DeleteArt} from './artwork/DeleteArt'
 import {EditArt} from './artwork/EditArt'
 import {LikeButton} from './artwork/LikeButton'
+import {FollowButton} from '@/components/FollowButton'
+import {Comments} from './artwork/Comments'
 
 import logo from '/profileplaceholder.png'
-import {Comments} from './artwork/Comments'
 
 export function Artwork() {
 	const userInfo = useSelector(selectUserInfo)
@@ -74,6 +75,9 @@ export function Artwork() {
 				) : (
 					<div className='flex flex-row pt-4'>
 						<LikeButton id={data.id} />
+						<div className='pl-3'>
+							<FollowButton id={data.user.id} />
+						</div>
 					</div>
 				)}
 				<Separator className='mt-6 mb-4' />

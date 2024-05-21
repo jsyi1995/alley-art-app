@@ -9,7 +9,7 @@ import {wrap, QueryOrder} from '@mikro-orm/postgresql'
 
 import {DI} from '../server'
 
-import {User, Artwork, Like} from '../entities'
+import {User, Artwork, Like, Follow} from '../entities'
 
 interface CustomRequest extends Request {
 	user?: User
@@ -202,11 +202,116 @@ router.get('/artist/:id', async (req: Request, res: Response) => {
 			return res.status(404).json({message: 'User not found!'})
 		}
 
-		res.json(user)
+		const totalFollowers = await DI.em.count(Follow, {
+			usertwo: {
+				id: +params.id,
+			},
+		})
+
+		const totalFollowing = await DI.em.count(Follow, {
+			userone: {
+				id: +params.id,
+			},
+		})
+
+		res.json({...user, totalFollowers, totalFollowing})
 	} catch (e: any) {
 		return res.status(400).json({message: e.message})
 	}
 })
+
+router.get('/artist/:id/follow', async (req: CustomRequest, res: Response) => {
+	if (!req.user) {
+		return res.status(401).send({error: 'Authentication failed.'})
+	}
+	try {
+		const params = req.params as {id: string}
+
+		const user = await DI.user.findOne(+params.id)
+
+		if (!user) {
+			return res.status(404).json({message: 'User not found'})
+		}
+
+		const follow = await DI.em.findOne(Follow, {
+			userone: req.user,
+			usertwo: user,
+		})
+
+		if (!follow) {
+			return res.json({following: false})
+		}
+
+		res.json({following: true})
+	} catch (e: any) {
+		return res.status(400).json({message: e.message})
+	}
+})
+
+router.post('/artist/:id/follow', async (req: CustomRequest, res: Response) => {
+	if (!req.user) {
+		return res.status(401).send({error: 'Authentication failed.'})
+	}
+	try {
+		const params = req.params as {id: string}
+
+		const user = await DI.user.findOne(+params.id)
+
+		if (!user) {
+			return res.status(404).json({message: 'User not found'})
+		}
+
+		if (req.user.id === user.id) {
+			return res.status(400).json({message: 'You cannot like yourself! :^)'})
+		}
+
+		const follow = await DI.em.findOne(Follow, {
+			userone: req.user,
+			usertwo: user,
+		})
+
+		if (follow) {
+			return res.status(400).json({message: 'Follow already exists'})
+		}
+
+		DI.em.create(Follow, {userone: req.user, usertwo: user})
+
+		await DI.em.flush()
+
+		res.json({success: true})
+	} catch (e: any) {
+		return res.status(400).json({message: e.message})
+	}
+})
+
+router.delete(
+	'/artist/:id/follow',
+	async (req: CustomRequest, res: Response) => {
+		if (!req.user) {
+			return res.status(401).send({error: 'Authentication failed.'})
+		}
+		try {
+			const params = req.params as {id: string}
+
+			const follow = await DI.em.findOne(Follow, {
+				userone: req.user,
+				usertwo: {
+					id: +params.id,
+				},
+			})
+
+			if (!follow) {
+				return res.status(404).json({message: 'Follow not found'})
+			}
+
+			await DI.em.remove(follow).flush()
+
+			res.json({success: true})
+		} catch (e: any) {
+			return res.status(400).json({message: e.message})
+		}
+	}
+)
 
 router.get('/artist/:id/gallery', async (req: Request, res: Response) => {
 	try {
@@ -251,6 +356,66 @@ router.get('/artist/:id/likes', async (req: Request, res: Response) => {
 		)
 
 		res.json({likes, totalCount: count})
+	} catch (e: any) {
+		return res.status(400).json({message: e.message})
+	}
+})
+
+router.get('/artist/:id/followers', async (req: Request, res: Response) => {
+	try {
+		const params = req.params as {id: string}
+
+		const user = await DI.user.findOne(+params.id)
+
+		if (!user) {
+			return res.status(404).json({message: 'User not found!'})
+		}
+
+		const [followersArr, count] = await DI.em.findAndCount(
+			Follow,
+			{usertwo: user},
+			{
+				populate: ['userone', 'userone.artworks'],
+			}
+		)
+
+		const followers = []
+
+		for (let i = 0; i < followersArr.length; i++) {
+			followers.push(followersArr[i].userone)
+		}
+
+		res.json({followers, totalCount: count})
+	} catch (e: any) {
+		return res.status(400).json({message: e.message})
+	}
+})
+
+router.get('/artist/:id/following', async (req: Request, res: Response) => {
+	try {
+		const params = req.params as {id: string}
+
+		const user = await DI.user.findOne(+params.id)
+
+		if (!user) {
+			return res.status(404).json({message: 'User not found!'})
+		}
+
+		const [followingArr, count] = await DI.em.findAndCount(
+			Follow,
+			{userone: user},
+			{
+				populate: ['usertwo', 'usertwo.artworks'],
+			}
+		)
+
+		const following = []
+
+		for (let i = 0; i < followingArr.length; i++) {
+			following.push(followingArr[i].usertwo)
+		}
+
+		res.json({following, totalCount: count})
 	} catch (e: any) {
 		return res.status(400).json({message: e.message})
 	}

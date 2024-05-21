@@ -2,6 +2,7 @@ import {useNavigate} from '@tanstack/react-router'
 import {useSelector} from 'react-redux'
 import {selectUserToken} from '../../store/slices/AuthSlice'
 import {useGetPostLikeQuery} from '../../store/slices/AlleySlice'
+import {FaThumbsUp} from 'react-icons/fa'
 import {Button} from '@/components/ui/button'
 import {useToast} from '@/components/ui/use-toast'
 
@@ -74,9 +75,15 @@ export function LikeButton({id}) {
 	return (
 		<>
 			{data && data.liked ? (
-				<Button onClick={() => onUnlike()}>Liked</Button>
+				<Button onClick={() => onUnlike()}>
+					<FaThumbsUp className='mr-2 h-4 w-4' />
+					Liked
+				</Button>
 			) : (
-				<Button onClick={() => onLike()}>Like</Button>
+				<Button onClick={() => onLike()}>
+					<FaThumbsUp className='mr-2 h-4 w-4' />
+					Like
+				</Button>
 			)}
 		</>
 	)
